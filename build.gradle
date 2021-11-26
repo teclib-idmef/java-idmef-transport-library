@@ -19,7 +19,6 @@ repositories {
 dependencies {
 //    compile fileTree(dir: 'lib', includes: ['*.jar'])
     implementation name:'java-idmef-library-1.0.1-SNAPSHOT'
-    implementation 'com.github.teclib-idmef:java-idmef-library:1.0.1-SNAP3'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
