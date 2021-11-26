@@ -25,7 +25,7 @@ public class IDMEFClient {
         this.url = url;
     }
 
-    public void send(IDMEFObject message) throws IOException, InterruptedException {
+    public HttpResponse<String> send(IDMEFObject message) throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
         builder.timeout(Duration.ofSeconds(30));
         builder.header("Content-Type", "application/json");
@@ -33,6 +33,6 @@ public class IDMEFClient {
 
         HttpRequest request = builder.build();
 
-        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 }

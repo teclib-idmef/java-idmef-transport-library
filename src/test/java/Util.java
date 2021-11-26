@@ -64,4 +64,10 @@ class Util {
 
         return msg;
     }
+
+    static IDMEFObject message3() {
+        IDMEFObject msg = new IDMEFObject();
+
+        return msg;
+    }
 }
