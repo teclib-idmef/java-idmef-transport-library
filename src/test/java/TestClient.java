@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class TestClient {
 
     static HttpResponse<String> send(IDMEFObject msg) {
-        IDMEFClient client = new IDMEFClient("http://127.0.0.1:8000/server");
+        IDMEFClient client = new IDMEFClient("http://127.0.0.1:9999");
         try {
             return client.send(msg);
         } catch (Exception e) {
