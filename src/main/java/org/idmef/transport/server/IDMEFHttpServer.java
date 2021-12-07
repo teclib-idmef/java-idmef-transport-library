@@ -17,38 +17,44 @@ import java.nio.charset.StandardCharsets;
 
 public class IDMEFHttpServer {
 
-    public static void main(String[] args) throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
-        server.createContext("/server", new MyHandler());
+    public IDMEFHttpServer(int port, String context, IDMEFHttpMessageHandler messageHandler) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        server.createContext(context, new MyHandler(messageHandler));
         server.setExecutor(null); // creates a default executor
         server.start();
     }
 
     static class MyHandler implements HttpHandler {
+        private IDMEFHttpMessageHandler messageHandler;
+
+        MyHandler(IDMEFHttpMessageHandler messageHandler) {
+            this.messageHandler = messageHandler;
+        }
+
         @Override
         public void handle(HttpExchange t) throws IOException {
-            boolean ok = this.processRequest(t);
-            String response = ok ?
-                    "valid IDMEF message":
-                    "invalid message";
-            t.sendResponseHeaders(ok ? 200 : 500, response.length());
+            boolean ok = processRequest(t);
+            String response = ok ? "valid IDMEF message": "invalid message";
+            int code = ok ? 200 : 500;
+            t.sendResponseHeaders(code, response.length());
+
             OutputStream os = t.getResponseBody();
             os.write(response.getBytes());
             os.close();
         }
 
-        private boolean processRequest(HttpExchange t) throws IOException {
-            boolean ok = false;
+        private boolean processRequest(HttpExchange t) throws IDMEFException, IOException {
             String bodyStr = this.readRequestBodyToString(t.getRequestBody());
-            try {
-                IDMEFObject message = IDMEFObject.deserialize(bodyStr.getBytes());
-                IDMEFValidator idmefValidator = new IDMEFValidator();
-                ok = idmefValidator.validate(message);
-            } catch (IDMEFException exception) {
-                exception.printStackTrace();
-            }
 
-            return ok;
+            IDMEFObject message = IDMEFObject.deserialize(bodyStr.getBytes());
+            IDMEFValidator idmefValidator = new IDMEFValidator();
+
+            if (!idmefValidator.validate(message))
+                return false;
+
+            messageHandler.handleMessage(message);
+
+            return true;
         }
 
         private String readRequestBodyToString (InputStream inputStream) throws IOException {
@@ -56,9 +62,11 @@ public class IDMEFHttpServer {
             char[] buffer = new char[bufferSize];
             StringBuilder out = new StringBuilder();
             Reader in = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+
             for (int numRead; (numRead = in.read(buffer, 0, buffer.length)) > 0; ) {
                 out.append(buffer, 0, numRead);
             }
+
             return out.toString();
         }
     }
