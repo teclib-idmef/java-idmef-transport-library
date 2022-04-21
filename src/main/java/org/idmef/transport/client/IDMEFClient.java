@@ -9,10 +9,24 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
+/**
+ * Client part of the IDMEF transport.
+ *
+ * This implementation provides:
+ * <ul>
+ *     <li>IDMEF message sending over HTTP</li>
+ * </ul>
+ *
+ */
 public class IDMEFClient {
     private HttpClient httpClient;
     private String url;
 
+    /**
+     * Initialize a IDMEFClient
+     *
+     * @param url the URL of the server, for instance "http://127.0.0.1:9999"
+     */
     public IDMEFClient(String url) {
         HttpClient.Builder builder = HttpClient.newBuilder();
 
@@ -25,6 +39,16 @@ public class IDMEFClient {
         this.url = url;
     }
 
+    /**
+     * Send a IDMEF message other HTTP using a POST request
+     *
+     * Call is synchronous and will block until message is sent.
+     *
+     * @param message the message to send
+     * @return the HTTP response
+     * @throws IOException if an I/O error occurred
+     * @throws InterruptedException if call was interrupted
+     */
     public HttpResponse<String> send(IDMEFObject message) throws IOException, InterruptedException {
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
         builder.timeout(Duration.ofSeconds(30));

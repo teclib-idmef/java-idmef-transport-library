@@ -15,12 +15,47 @@ import java.io.Reader;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Server part of the IDMEF transport.
+ *
+ *  This implementation provides:
+ *
+ *  <ul>
+ *      <li>IDMEF message reception over HTTP</li>
+ *  </ul>
+ */
 public class IDMEFHttpServer {
+    private HttpServer server;
 
+    /**
+     * Initializes a server.
+     *
+     * Creates the underlying HttpServer and its associated handler.
+     *
+     * The HTTP request handler:
+     * <ul>
+     *     <li>deserializes the received JSON bytes; if deserialization fails, no further processing is performed</li>
+     *     <li>validates the deserialized IDMEFObject</li>
+     *     <li>if message is valid, calls the message handler</li>
+     * </ul>
+     *
+     * @param port the TCP port on which server will listen, for instance 9999
+     * @param context the context to which server will answer, for instance "/" or "/api"
+     * @param messageHandler an instance of a class implementing IDMEFHttpMessageHandler
+     * @throws IOException if an error occurred during HttpServer creation, for instance port is not available.
+     */
     public IDMEFHttpServer(int port, String context, IDMEFHttpMessageHandler messageHandler) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext(context, new MyHandler(messageHandler));
         server.setExecutor(null); // creates a default executor
+    }
+
+    /**
+     * Start the HTTP server.
+     *
+     * This method blocks until server exits or is interrupted.
+     */
+    public void start() {
         server.start();
     }
 

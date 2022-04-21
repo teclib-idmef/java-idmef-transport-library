@@ -20,6 +20,8 @@ public class TestServer {
 
         try {
             IDMEFHttpServer server = new IDMEFHttpServer(9999, "/", handler);
+
+            server.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
