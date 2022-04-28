@@ -9,4 +9,4 @@ SOURCEPATH=$HERE/src/main/java
 PDF=$HERE/doc/pdf/$PACKAGE.pdf
 CONFIG=$HERE/scripts/javadoc-pdf.properties
 
-javadoc -doclet $DOCLET -docletpath $DOCLETPATH -config $CONFIG -pdf $PDF -sourcepath $SOURCEPATH $PACKAGE
+javadoc -doclet $DOCLET -docletpath $DOCLETPATH -config $CONFIG -pdf $PDF -sourcepath $SOURCEPATH -subpackages $PACKAGE
