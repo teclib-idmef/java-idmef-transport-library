@@ -16,6 +16,7 @@
 
 import org.idmef.IDMEFObject;
 import org.idmef.transport.client.IDMEFClient;
+import org.idmef.transport.server.IDMEFHttpServer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,14 +26,40 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestClient {
 
+    private IDMEFHttpServer server;
+    private IDMEFClient client;
+
     static HttpResponse<String> send(IDMEFObject msg) {
-        IDMEFClient client = new IDMEFClient("http://127.0.0.1:9999");
         try {
             return client.send(msg);
         } catch (Exception e) {
             fail(e.getMessage());
         }
         return null;
+    }
+
+    @before
+    void startServerAndClient() {
+        IDMEFHttpMessageHandler handler = new IDMEFHttpMessageHandler() {
+		@Override
+		public void handleMessage(IDMEFObject message) {
+		    try {
+			System.out.println(new String(message.serialize()));
+		    } catch (IOException e) {
+			e.printStackTrace();
+		    }
+		}
+	    };
+
+        try {
+            server = new IDMEFHttpServer(9999, "/", handler);
+	    
+            server.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+	client = new IDMEFClient("http://127.0.0.1:9999");
     }
 
     @Test
