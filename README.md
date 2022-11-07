@@ -5,7 +5,7 @@
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/teclib-idmef/java-idmef-transport-library) 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/teclib-idmef/java-idmef-transport-library)
 ![GitHub issues](https://img.shields.io/github/issues/teclib-idmef/java-idmef-transport-library)
-[![](https://jitpack.io/v/teclib-idmef/java-idmef-library.svg)](https://jitpack.io/#teclib-idmef/java-idmef-library)
+[![](https://jitpack.io/v/teclib-idmef/java-idmef-library.svg)](https://jitpack.io/#teclib-idmef/java-idmef-transport-library)
 
 A Java library for transporting JSON IDMEFv2 messages. It can be used to transfer Incident Detection Message Exchange Format (IDMEFv2) messages for exchange with other systems.
 
