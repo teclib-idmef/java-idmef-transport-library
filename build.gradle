@@ -51,7 +51,11 @@ task runClient(type: JavaExec) {
     description = "Run the client"
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.idmef.transport.client.Main'
-    args = ["--server", "http://127.0.0.1:9999", "--delay", "5000", "--retry", "10000"]
+    if (project.hasProperty("args")) {
+        args project.getProperty("args").split()
+    } else { 
+        args = ["--server", "http://127.0.0.1:9999", "--delay", "5000", "--retry", "10000"]
+    }
 }
 
 publishing {
