@@ -20,6 +20,7 @@ dependencies {
     implementation 'com.github.teclib-idmef:java-idmef-library:V1.0.2'
     implementation 'com.networknt:json-schema-validator:1.0.64'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
+    implementation 'commons-cli:commons-cli:1.3.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
@@ -46,7 +47,7 @@ task runClient(type: JavaExec) {
     description = "Run the client"
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.idmef.transport.client.Main'
-    args = ["http://127.0.0.1:9999", "5000"]
+    args = ["--server", "http://127.0.0.1:9999", "--delay", "5000", "--retry", "10000"]
 }
 
 publishing {

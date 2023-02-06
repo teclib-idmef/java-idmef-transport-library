@@ -16,7 +16,16 @@
 
 package org.idmef.transport.client;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.idmef.IDMEFObject;
+
+import java.net.ConnectException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -50,17 +59,81 @@ public class Main {
         return msg;
     }
 
-    public static void main(String[] args) {
-        IDMEFClient client = new IDMEFClient(args[0]);
-        long millis = Long.parseLong(args[1]);
+    private static class ClientOptions {
+        private Options options;
+        String serverURL;
+        int retryCount;
+        String defaultRetryCount = "10";
+        long delay;
+        String defaultDelay = "5000";
 
-        try {
-            while (true) {
-                client.send(generateMessage());
-                Thread.sleep(millis);
+        ClientOptions() {
+            options = new Options();
+
+            Option serverURL = new Option("s", "server", true, "server URL, e.g. http://localhost:8080");
+            serverURL.setRequired(true);
+            options.addOption(serverURL);
+
+            Option retryCount = new Option("r",
+                    "retry",
+                    true,
+                    ("retry count for server connection attempt, default: " + defaultRetryCount));
+            retryCount.setRequired(false);
+            options.addOption(retryCount);
+
+            Option delay = new Option("d",
+                    "delay",
+                    true,
+                    ("delay between each message sending, default: " + defaultDelay));
+            delay.setRequired(false);
+            options.addOption(delay);
+        }
+
+        void parse(String[] args) throws ParseException {
+            CommandLineParser parser = new DefaultParser();
+            HelpFormatter formatter = new HelpFormatter();
+            CommandLine cmd = null;
+
+            try {
+                cmd = parser.parse(options, args);
+            } catch (ParseException e) {
+                System.out.println(e.getMessage());
+                formatter.printHelp("IDMEFV2 Client", options);
+                throw e;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            serverURL = cmd.getOptionValue("server");
+            retryCount = Integer.parseInt(cmd.getOptionValue("retry", defaultRetryCount));
+            delay = Long.parseLong(cmd.getOptionValue("delay", defaultDelay));
+        }
+    }
+
+    public static void main(String[] args) {
+        ClientOptions opts = new ClientOptions();
+        try {
+            opts.parse(args);
+        } catch (ParseException e) {
+            return;
+        }
+
+        IDMEFClient client = new IDMEFClient(opts.serverURL);
+        int retryCount = opts.retryCount;
+        long delay = opts.delay;
+
+        while (true) {
+            try {
+                client.send(generateMessage());
+                Thread.sleep(delay);
+            } catch (ConnectException e) {
+                retryCount--;
+                if (retryCount == 0) {
+                    e.printStackTrace();
+                    return;    
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
         }
     }
 }
