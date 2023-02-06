@@ -39,7 +39,7 @@ task runServer(type: JavaExec) {
     description = "Run the server"
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.idmef.transport.server.Main'
-    args = ["9999"]
+    args = ["--port", "9999"]
 }
 
 task runClient(type: JavaExec) {

@@ -16,6 +16,13 @@
 
  package org.idmef.transport.server;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.idmef.IDMEFObject;
 import org.idmef.transport.server.IDMEFHttpMessageHandler;
 import org.idmef.transport.server.IDMEFHttpServer;
@@ -24,7 +31,43 @@ import java.io.IOException;
 
 public class Main {
 
+    private static class ServerOptions {
+        private Options options;
+        int port;
+
+        ServerOptions() {
+            options = new Options();
+
+            Option port = new Option("p", "port", true, "server TCP port, e.g. 8080");
+            port.setRequired(true);
+            options.addOption(port);
+        }
+
+        void parse(String[] args) throws ParseException {
+            CommandLineParser parser = new DefaultParser();
+            HelpFormatter formatter = new HelpFormatter();
+            CommandLine cmd = null;
+
+            try {
+                cmd = parser.parse(options, args);
+            } catch (ParseException e) {
+                System.out.println(e.getMessage());
+                formatter.printHelp("IDMEFV2 Server", options);
+                throw e;
+            }
+
+            port = Integer.parseInt(cmd.getOptionValue("port"));
+        }
+    }
+
     public static void main(String[] args) {
+        ServerOptions opts = new ServerOptions();
+        try {
+            opts.parse(args);
+        } catch (ParseException e) {
+            return;
+        }
+
         IDMEFHttpMessageHandler handler = new IDMEFHttpMessageHandler() {
             @Override
             public void handleMessage(IDMEFObject message) {
@@ -37,8 +80,7 @@ public class Main {
         };
 
         try {
-	    int port = Integer.parseInt(args[0]);
-            IDMEFHttpServer server = new IDMEFHttpServer(port, "/", handler);
+            IDMEFHttpServer server = new IDMEFHttpServer(opts.port, "/", handler);
 
             server.start();
         } catch (IOException e) {
