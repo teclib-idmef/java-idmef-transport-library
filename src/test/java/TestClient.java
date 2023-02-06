@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-import org.idmef.IDMEFObject;
-import org.idmef.transport.client.IDMEFClient;
-import org.idmef.transport.server.IDMEFHttpServer;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.net.http.HttpResponse;
-
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.net.http.HttpResponse;
+
+import org.idmef.IDMEFObject;
+import org.idmef.transport.client.IDMEFClient;
+import org.idmef.transport.server.IDMEFHttpMessageHandler;
+import org.idmef.transport.server.IDMEFHttpServer;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TestClient {
 
     private IDMEFHttpServer server;
     private IDMEFClient client;
 
-    static HttpResponse<String> send(IDMEFObject msg) {
+    HttpResponse<String> send(IDMEFObject msg) {
         try {
             return client.send(msg);
         } catch (Exception e) {
@@ -38,28 +43,28 @@ public class TestClient {
         return null;
     }
 
-    @before
+    @BeforeAll
     void startServerAndClient() {
         IDMEFHttpMessageHandler handler = new IDMEFHttpMessageHandler() {
-		@Override
-		public void handleMessage(IDMEFObject message) {
-		    try {
-			System.out.println(new String(message.serialize()));
-		    } catch (IOException e) {
-			e.printStackTrace();
-		    }
-		}
-	    };
+            @Override
+            public void handleMessage(IDMEFObject message) {
+                try {
+                    System.out.println(new String(message.serialize()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
 
         try {
             server = new IDMEFHttpServer(9999, "/", handler);
-	    
+
             server.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-	client = new IDMEFClient("http://127.0.0.1:9999");
+        client = new IDMEFClient("http://127.0.0.1:9999");
     }
 
     @Test

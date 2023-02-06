@@ -1,2 +1,15 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
 rootProject.name = 'java-idmef-transport-library'
 
+sourceControl {
+    gitRepository("https://github.com/teclib-idmef/java-idmef-library.git") {
+        producesModule("com.github.teclib-idmef:java-idmef-library")
+    }
+}
