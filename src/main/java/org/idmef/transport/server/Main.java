@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+ package org.idmef.transport.server;
+
 import org.idmef.IDMEFObject;
 import org.idmef.transport.server.IDMEFHttpMessageHandler;
 import org.idmef.transport.server.IDMEFHttpServer;
@@ -35,7 +37,7 @@ public class Main {
         };
 
         try {
-	    int port = Integer.parseInt(args[1]);
+	    int port = Integer.parseInt(args[0]);
             IDMEFHttpServer server = new IDMEFHttpServer(port, "/", handler);
 
             server.start();
